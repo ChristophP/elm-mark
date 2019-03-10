@@ -73,3 +73,24 @@ highlight term content =
     partitionByTerm term content
         |> Tuple.mapBoth (List.map text) (List.map (text >> List.singleton >> mark []))
         |> (\( texts, marks ) -> interweave texts marks)
+
+
+type Marker
+    = Miss String
+    | Match String
+
+
+type alias Options =
+    { search : SearchType
+    }
+
+
+type SearchType
+    = StringCaseSensitive
+    | StringCaseInsensitive
+    | Custom (String -> List ( Int, Int ))
+
+
+highlightWith : Options -> String -> String -> List Marker
+highlightWith options term content =
+    []
