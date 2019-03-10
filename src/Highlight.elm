@@ -80,8 +80,16 @@ type Marker
     | Match String
 
 
+type Accuracy
+    = Partially
+    | Complementary
+    | Exactly
+
+
 type alias Options =
-    { search : SearchType
+    { searchType : SearchType
+    , wordSearch : Bool
+    , accuracy : Accuracy
     }
 
 
