@@ -7,5 +7,5 @@ Search Term Highlighting for Elm Apps
 Developing and running the tests.
 
 ```
-npm test:watch
+npm run test:watch
 ```
