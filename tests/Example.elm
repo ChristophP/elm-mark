@@ -19,7 +19,7 @@ type Mark
 
 
 testOptions =
-    { searchType = Normal CaseIgnore WhitespaceSeparatesWords
+    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
     , hitWrapper = Hit
     , missWrapper = Miss
     }
@@ -76,4 +76,6 @@ suite =
                                 _ ->
                                     Expect.fail "Did not end with a miss."
                        )
+        , todo "test case sensitive"
+        , todo "test custom indexes"
         ]

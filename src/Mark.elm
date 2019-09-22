@@ -13,13 +13,18 @@ import Html exposing (Html)
 partitionByTerm : Options a -> String -> String -> List a
 partitionByTerm options term content =
     let
-        revPositions =
-            String.indexes
-                (String.toLower term)
-                (String.toLower content)
-                |> List.reverse
+        indexes =
+            case options.searchType of
+                SearchNormal CaseIgnore _ ->
+                    String.indexes (String.toLower term) (String.toLower content)
+
+                SearchNormal CaseSensitive _ ->
+                    String.indexes term content
+
+                SearchCustom getIndexes ->
+                    getIndexes term content
     in
-    partitionByTermHelp options revPositions term content []
+    partitionByTermHelp options (List.reverse indexes) term content []
 
 
 partitionByTermHelp : Options a -> List Int -> String -> String -> List a -> List a
@@ -77,8 +82,8 @@ type Case
 
 
 type SearchType
-    = Normal Case Whitespace
-    | Custom (String -> List ( Int, Int ))
+    = SearchNormal Case Whitespace
+    | SearchCustom (String -> String -> List Int)
 
 
 highlightWith : Options a -> String -> String -> List a
@@ -88,7 +93,7 @@ highlightWith options term content =
 
 defaultOptions : Options (Html msg)
 defaultOptions =
-    { searchType = Normal CaseIgnore WhitespaceSeparatesWords
+    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
     , hitWrapper = Html.text
     , missWrapper = \miss -> Html.mark [] [ Html.text miss ]
     }
