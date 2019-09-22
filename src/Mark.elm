@@ -2,6 +2,7 @@ module Mark exposing
     ( Case(..)
     , SearchType(..)
     , Whitespace(..)
+    , defaultOptions
     , highlight
     , highlightWith
     )
