@@ -1,17 +1,6 @@
-module Highlight exposing (highlight, interweave)
+module Mark exposing (highlight, highlightWith, interweave)
 
-
-type Html msg
-    = Mark (List (Html msg))
-    | Text String
-
-
-mark _ children =
-    Mark children
-
-
-text =
-    Text
+import Html exposing (Html)
 
 
 {-| not tail recursive yet
@@ -68,13 +57,6 @@ partitionByTermHelp revPositions term content ( misses, matches ) =
             partitionByTermHelp rest term newContent ( miss :: misses, match :: matches )
 
 
-highlight : String -> String -> List (Html msg)
-highlight term content =
-    partitionByTerm term content
-        |> Tuple.mapBoth (List.map text) (List.map (text >> List.singleton >> mark []))
-        |> (\( texts, marks ) -> interweave texts marks)
-
-
 type Marker
     = Miss String
     | Match String
@@ -86,19 +68,52 @@ type Accuracy
     | Exactly
 
 
-type alias Options =
+type alias Options a =
     { searchType : SearchType
-    , wordSearch : Bool
-    , accuracy : Accuracy
+    , hitWrapper : String -> a
+    , missWrapper : String -> a
     }
 
 
+
+--defaultOptions : Options (Html msg)
+--defaultOptions =
+--{ searchType = Normal CaseIgnore WhitespaceSeparatesWords
+--, hitWrapper = Html.text
+--, missWrapper = \miss -> Html.mark [] [ Html.text miss ]
+--}
+
+
+type Whitespace
+    = WhitespacePartOfTerm
+    | WhitespaceSeparatesWords
+
+
+type Case
+    = CaseSensitive
+    | CaseIgnore
+
+
 type SearchType
-    = StringCaseSensitive
-    | StringCaseInsensitive
+    = Normal Case Whitespace
     | Custom (String -> List ( Int, Int ))
 
 
-highlightWith : Options -> String -> String -> List Marker
-highlightWith options term content =
-    []
+highlightWith : Options a -> String -> String -> List a
+highlightWith { hitWrapper, missWrapper } term content =
+    partitionByTerm term content
+        |> Tuple.mapBoth (List.map hitWrapper) (List.map missWrapper)
+        |> (\( texts, marks ) -> interweave texts marks)
+
+
+defaultOptions : Options (Html msg)
+defaultOptions =
+    { searchType = Normal CaseIgnore WhitespaceSeparatesWords
+    , hitWrapper = Html.text
+    , missWrapper = \miss -> Html.mark [] [ Html.text miss ]
+    }
+
+
+highlight : String -> String -> List (Html msg)
+highlight =
+    highlightWith defaultOptions
