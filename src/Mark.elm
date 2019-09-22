@@ -4,37 +4,9 @@ module Mark exposing
     , Whitespace(..)
     , highlight
     , highlightWith
-    , interweave
     )
 
 import Html exposing (Html)
-
-
-{-| not tail recursive yet
-interweave [1, 3, 5][2, 4, 6] == [1, 2, 3, 4, 5, 6]
-Alternative naive implementation of interweave which is not using concatMap2
--}
-interweave : List String -> List String -> (String -> a) -> (String -> a) -> List a
-interweave xs ys hitWrapper missWrapper =
-    case xs of
-        [] ->
-            List.map missWrapper ys
-
-        headX :: tailX ->
-            case ys of
-                [] ->
-                    List.map hitWrapper xs
-
-                headY :: tailY ->
-                    case headX of
-                        "" ->
-                            missWrapper headY
-                                :: interweave tailX tailY hitWrapper missWrapper
-
-                        _ ->
-                            hitWrapper headX
-                                :: missWrapper headY
-                                :: interweave tailX tailY hitWrapper missWrapper
 
 
 partitionByTerm : Options a -> String -> String -> List a
@@ -86,31 +58,11 @@ wrapAndAddToMarkers item wrapper markers =
             wrapper item :: markers
 
 
-type Marker
-    = Miss String
-    | Match String
-
-
-type Accuracy
-    = Partially
-    | Complementary
-    | Exactly
-
-
 type alias Options a =
     { searchType : SearchType
     , hitWrapper : String -> a
     , missWrapper : String -> a
     }
-
-
-
---defaultOptions : Options (Html msg)
---defaultOptions =
---{ searchType = Normal CaseIgnore WhitespaceSeparatesWords
---, hitWrapper = Html.text
---, missWrapper = \miss -> Html.mark [] [ Html.text miss ]
---}
 
 
 type Whitespace
@@ -131,11 +83,6 @@ type SearchType
 highlightWith : Options a -> String -> String -> List a
 highlightWith options term content =
     partitionByTerm options term content
-
-
-
---|> Tuple.mapBoth (List.map hitWrapper) (List.map missWrapper)
---|> (\( hits, misses ) -> interweave hits misses hitWrapper missWrapper)
 
 
 defaultOptions : Options (Html msg)

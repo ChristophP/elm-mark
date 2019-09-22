@@ -9,7 +9,6 @@ import Mark
         , Whitespace(..)
         , highlight
         , highlightWith
-        , interweave
         )
 import Test exposing (..)
 
