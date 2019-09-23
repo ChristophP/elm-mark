@@ -28,9 +28,9 @@ testOptions =
     }
 
 
-suite : Test
-suite =
-    describe "highlightWith"
+basic : Test
+basic =
+    describe "highlightWith basic"
         [ test "splits a string into hits and misses" <|
             \() ->
                 highlightWith testOptions "assi" "assi Peter Hassi"
@@ -79,6 +79,25 @@ suite =
                                 _ ->
                                     Expect.fail "Did not end with a miss."
                        )
-        , todo "test case sensitive"
-        , todo "test custom indexes"
+        ]
+
+
+caseSensitivity =
+    concat
+        [ describe "highlightWith case ignore" <|
+            let
+                caseIgnoreOptions =
+                    { testOptions | searchType = searchNormal caseIgnore whitespacePartOfTerm 3 }
+            in
+            [ test "finds uppercase matches too when searching lowercase" <|
+                \() ->
+                    highlightWith caseIgnoreOptions "assi" "Peter HaSSi Ha ASSIt aSiS"
+                        |> Expect.equal [ Miss "Peter H", Hit "aSSi", Miss " Ha ", Hit "ASSI", Miss "t aSiS" ]
+            , test "finds also lowercase matches when searching uppercase" <|
+                \() ->
+                    highlightWith caseIgnoreOptions "ASSI" "Peter aSSi Ha assiaSiS"
+                        |> Expect.equal [ Miss "Peter ", Hit "aSSi", Miss " Ha ", Hit "assi", Hit "aSiS" ]
+            ]
+        , describe "highlightWith case sensitive"
+            []
         ]
