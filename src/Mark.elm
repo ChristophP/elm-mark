@@ -1,24 +1,27 @@
 module Mark exposing
-    ( Case(..)
-    , SearchType(..)
-    , Whitespace(..)
+    ( caseIgnore
+    , caseSensitive
     , defaultOptions
     , highlight
     , highlightWith
+    , searchCustom
+    , searchNormal
+    , whitespacePartOfTerm
+    , whitespaceSeparatesWords
     )
 
 import Html exposing (Html)
 
 
-partitionByTerm : Options a -> String -> String -> List a
+partitionByTerm : Options a b -> String -> String -> List b
 partitionByTerm options term content =
     let
         indexes =
             case options.searchType of
-                SearchNormal CaseIgnore _ ->
+                SearchNormal CaseIgnore _ _ ->
                     String.indexes (String.toLower term) (String.toLower content)
 
-                SearchNormal CaseSensitive _ ->
+                SearchNormal CaseSensitive _ _ ->
                     String.indexes term content
 
                 SearchCustom getIndexes ->
@@ -27,7 +30,7 @@ partitionByTerm options term content =
     partitionByTermHelp options (List.reverse indexes) term content []
 
 
-partitionByTermHelp : Options a -> List Int -> String -> String -> List a -> List a
+partitionByTermHelp : Options a b -> List Int -> String -> String -> List b -> List b
 partitionByTermHelp ({ hitWrapper, missWrapper } as options) revPositions term content markers =
     case revPositions of
         [] ->
@@ -64,10 +67,12 @@ wrapAndAddToMarkers item wrapper markers =
             wrapper item :: markers
 
 
-type alias Options a =
-    { searchType : SearchType
-    , hitWrapper : String -> a
-    , missWrapper : String -> a
+{-| -}
+type alias Options record a =
+    { record
+        | searchType : SearchType
+        , hitWrapper : String -> a
+        , missWrapper : String -> a
     }
 
 
@@ -76,29 +81,71 @@ type Whitespace
     | WhitespaceSeparatesWords
 
 
+{-| -}
+whitespacePartOfTerm : Whitespace
+whitespacePartOfTerm =
+    WhitespacePartOfTerm
+
+
+{-| -}
+whitespaceSeparatesWords : Whitespace
+whitespaceSeparatesWords =
+    WhitespaceSeparatesWords
+
+
 type Case
     = CaseSensitive
     | CaseIgnore
 
 
+{-| -}
+caseSensitive : Case
+caseSensitive =
+    CaseSensitive
+
+
+{-| -}
+caseIgnore : Case
+caseIgnore =
+    CaseIgnore
+
+
 type SearchType
-    = SearchNormal Case Whitespace
+    = SearchNormal Case Whitespace Int
     | SearchCustom (String -> String -> List Int)
 
 
-highlightWith : Options a -> String -> String -> List a
-highlightWith options term content =
-    partitionByTerm options term content
+{-| Use normal search. You can configure case sensitivity,
+the way whitespace is treated and a min wordlength
+for the search to generate hits.
+-}
+searchNormal : Case -> Whitespace -> Int -> SearchType
+searchNormal =
+    SearchNormal
 
 
-defaultOptions : Options (Html msg)
+{-| -}
+searchCustom : (String -> String -> List Int) -> SearchType
+searchCustom =
+    SearchCustom
+
+
+{-| -}
+defaultOptions : Options {} (Html msg)
 defaultOptions =
-    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
+    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords 3
     , hitWrapper = Html.text
     , missWrapper = \miss -> Html.mark [] [ Html.text miss ]
     }
 
 
+{-| -}
+highlightWith : Options record a -> String -> String -> List a
+highlightWith options term content =
+    partitionByTerm options term content
+
+
+{-| -}
 highlight : String -> String -> List (Html msg)
 highlight =
     highlightWith defaultOptions

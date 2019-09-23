@@ -1,14 +1,17 @@
-module Example exposing (..)
+module MarkTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Mark
     exposing
-        ( Case(..)
-        , SearchType(..)
-        , Whitespace(..)
+        ( caseIgnore
+        , caseSensitive
         , highlight
         , highlightWith
+        , searchCustom
+        , searchNormal
+        , whitespacePartOfTerm
+        , whitespaceSeparatesWords
         )
 import Test exposing (..)
 
@@ -19,7 +22,7 @@ type Mark
 
 
 testOptions =
-    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
+    { searchType = searchNormal caseIgnore whitespacePartOfTerm 3
     , hitWrapper = Hit
     , missWrapper = Miss
     }
