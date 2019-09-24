@@ -96,8 +96,8 @@ caseSensitivity =
                         |> Expect.equal [ Miss "Peter H", Hit "aSSi", Miss " Ha ", Hit "ASSI", Miss "t aSiS" ]
             , test "finds also lowercase matches when searching uppercase" <|
                 \() ->
-                    highlightWith caseIgnoreOptions "ASSI" "Peter aSSi Ha assiaSiS"
-                        |> Expect.equal [ Miss "Peter ", Hit "aSSi", Miss " Ha ", Hit "assi", Hit "aSiS" ]
+                    highlightWith caseIgnoreOptions "ASSI" "Peter aSSi Ha assiaSsi"
+                        |> Expect.equal [ Miss "Peter ", Hit "aSSi", Miss " Ha ", Hit "assi", Hit "aSsi" ]
             ]
         , describe "highlightWith case sensitive"
             []
