@@ -15,19 +15,23 @@ import Html exposing (Html)
 
 partitionByTerm : Options a b -> String -> String -> List b
 partitionByTerm options term content =
-    let
-        indexes =
-            case options.searchType of
-                SearchNormal CaseIgnore _ _ ->
-                    String.indexes (String.toLower term) (String.toLower content)
+    if options.minTermLength < String.length term then
+        let
+            indexes =
+                case options.searchType of
+                    SearchNormal CaseIgnore _ ->
+                        String.indexes (String.toLower term) (String.toLower content)
 
-                SearchNormal CaseSensitive _ _ ->
-                    String.indexes term content
+                    SearchNormal CaseSensitive _ ->
+                        String.indexes term content
 
-                SearchCustom getIndexes ->
-                    getIndexes term content
-    in
-    partitionByTermHelp options (List.reverse indexes) term content []
+                    SearchCustom getIndexes ->
+                        getIndexes term content
+        in
+        partitionByTermHelp options (List.reverse indexes) term content []
+
+    else
+        [ options.missWrapper content ]
 
 
 partitionByTermHelp : Options a b -> List Int -> String -> String -> List b -> List b
@@ -71,6 +75,7 @@ wrapAndAddToMarkers item wrapper markers =
 type alias Options record a =
     { record
         | searchType : SearchType
+        , minTermLength : Int
         , hitWrapper : String -> a
         , missWrapper : String -> a
     }
@@ -111,7 +116,7 @@ caseIgnore =
 
 
 type SearchType
-    = SearchNormal Case Whitespace Int
+    = SearchNormal Case Whitespace
     | SearchCustom (String -> String -> List Int)
 
 
@@ -119,7 +124,7 @@ type SearchType
 the way whitespace is treated and a min wordlength
 for the search to generate hits.
 -}
-searchNormal : Case -> Whitespace -> Int -> SearchType
+searchNormal : Case -> Whitespace -> SearchType
 searchNormal =
     SearchNormal
 
@@ -133,7 +138,8 @@ searchCustom =
 {-| -}
 defaultOptions : Options {} (Html msg)
 defaultOptions =
-    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords 3
+    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
+    , minTermLength = 3
     , hitWrapper = Html.text
     , missWrapper = \miss -> Html.mark [] [ Html.text miss ]
     }
