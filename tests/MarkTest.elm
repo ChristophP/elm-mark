@@ -116,7 +116,7 @@ caseSensitivity =
         ]
 
 
-otherTest =
+minLenghtTests =
     describe "highlightWith minimum search length"
         [ fuzz (Fuzz.intRange 0 8) "won't create any hits when length is not reached" <|
             \minLength ->
@@ -128,7 +128,7 @@ otherTest =
                         "assi"
 
                     result =
-                        highlightWith options "assi" "Peter assi Ha"
+                        highlightWith options searchTerm "Peter assi Ha"
 
                     expectedResult =
                         if minLength < String.length searchTerm then
