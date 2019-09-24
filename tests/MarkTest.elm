@@ -87,20 +87,32 @@ caseSensitivity =
     concat
         [ describe "highlightWith case ignore" <|
             let
-                caseIgnoreOptions =
+                options =
                     { testOptions | searchType = searchNormal caseIgnore whitespacePartOfTerm }
             in
             [ test "finds uppercase matches too when searching lowercase" <|
                 \() ->
-                    highlightWith caseIgnoreOptions "assi" "Peter HaSSi Ha ASSIt aSiS"
+                    highlightWith options "assi" "Peter HaSSi Ha ASSIt aSiS"
                         |> Expect.equal [ Miss "Peter H", Hit "aSSi", Miss " Ha ", Hit "ASSI", Miss "t aSiS" ]
             , test "finds also lowercase matches when searching uppercase" <|
                 \() ->
-                    highlightWith caseIgnoreOptions "ASSI" "Peter aSSi Ha assiaSsi"
+                    highlightWith options "ASSI" "Peter aSSi Ha assiaSsi"
                         |> Expect.equal [ Miss "Peter ", Hit "aSSi", Miss " Ha ", Hit "assi", Hit "aSsi" ]
             ]
-        , describe "highlightWith case sensitive"
-            []
+        , describe "highlightWith case sensitive" <|
+            let
+                options =
+                    { testOptions | searchType = searchNormal caseSensitive whitespacePartOfTerm }
+            in
+            [ test "won't find uppercase matches when searching lowercase" <|
+                \() ->
+                    highlightWith options "assi" "Peter HaSSi Ha ASSIt aSiS"
+                        |> Expect.equal [ Miss "Peter HaSSi Ha ASSIt aSiS" ]
+            , test "finds exact matches" <|
+                \() ->
+                    highlightWith options "aSSi" "Peter aSSi Ha assiaSsi"
+                        |> Expect.equal [ Miss "Peter ", Hit "aSSi", Miss " Ha assiaSsi" ]
+            ]
         ]
 
 
