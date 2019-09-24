@@ -81,23 +81,6 @@ type alias Options record a =
     }
 
 
-type Whitespace
-    = WhitespacePartOfTerm
-    | WhitespaceSeparatesWords
-
-
-{-| -}
-whitespacePartOfTerm : Whitespace
-whitespacePartOfTerm =
-    WhitespacePartOfTerm
-
-
-{-| -}
-whitespaceSeparatesWords : Whitespace
-whitespaceSeparatesWords =
-    WhitespaceSeparatesWords
-
-
 type Case
     = CaseSensitive
     | CaseIgnore
@@ -113,6 +96,23 @@ caseSensitive =
 caseIgnore : Case
 caseIgnore =
     CaseIgnore
+
+
+type Whitespace
+    = WhitespacePartOfTerm
+    | WhitespaceSeparatesWords
+
+
+{-| -}
+whitespacePartOfTerm : Whitespace
+whitespacePartOfTerm =
+    WhitespacePartOfTerm
+
+
+{-| -}
+whitespaceSeparatesWords : Whitespace
+whitespaceSeparatesWords =
+    WhitespaceSeparatesWords
 
 
 type SearchType
