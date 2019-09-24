@@ -82,3 +82,19 @@ suite =
         , todo "test case sensitive"
         , todo "test custom indexes"
         ]
+
+
+
+otherTest = describe "highlightWith minimum search length" [
+  fuzz (Fuzz.intRange 0 8) "won't create any hits when length is not reached" <| \minLength ->
+     let options = { testOptions | searchType  = searchNormal caseIgnore whitespacePartOfTerm minLength   }
+         searchTerm = "assi"
+         result =  highlightWith testOptions "assi" "Peter assi Ha"
+         expectedResult =
+          if minLength >= String.length searchTerm then
+            [Miss "Peter ", Hit "assi", Miss " Ha"]
+          else
+            [Miss "Peter assi Ha"]
+     in
+         result |> Expect.equal expectedResult
+  ]
