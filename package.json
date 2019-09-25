@@ -4,7 +4,8 @@
   "description": "Search Term Highlighting for Elm Apps",
   "scripts": {
     "test": "elm-test --compiler=node_modules/.bin/elm",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "dev": "npm run test:watch"
   },
   "repository": {
     "type": "git",
