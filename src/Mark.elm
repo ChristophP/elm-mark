@@ -13,7 +13,7 @@ module Mark exposing
 import Html exposing (Html)
 
 
-partitionByTerm : Options a b -> String -> String -> List b
+partitionByTerm : Options a -> String -> String -> List a
 partitionByTerm options term content =
     if options.minTermLength < String.length term then
         let
@@ -34,7 +34,7 @@ partitionByTerm options term content =
         [ options.missWrapper content ]
 
 
-partitionByTermHelp : Options a b -> List Int -> String -> String -> List b -> List b
+partitionByTermHelp : Options a -> List Int -> String -> String -> List a -> List a
 partitionByTermHelp ({ hitWrapper, missWrapper } as options) revPositions term content markers =
     case revPositions of
         [] ->
@@ -72,12 +72,11 @@ wrapAndAddToMarkers item wrapper markers =
 
 
 {-| -}
-type alias Options record a =
-    { record
-        | searchType : SearchType
-        , minTermLength : Int
-        , hitWrapper : String -> a
-        , missWrapper : String -> a
+type alias Options a =
+    { searchType : SearchType
+    , minTermLength : Int
+    , hitWrapper : String -> a
+    , missWrapper : String -> a
     }
 
 
@@ -136,7 +135,7 @@ searchCustom =
 
 
 {-| -}
-defaultOptions : Options {} (Html msg)
+defaultOptions : Options (Html msg)
 defaultOptions =
     { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
     , minTermLength = 3
@@ -146,7 +145,7 @@ defaultOptions =
 
 
 {-| -}
-highlightWith : Options record a -> String -> String -> List a
+highlightWith : Options a -> String -> String -> List a
 highlightWith options term content =
     partitionByTerm options term content
 
