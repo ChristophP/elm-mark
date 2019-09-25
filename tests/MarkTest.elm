@@ -4,8 +4,8 @@ import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Mark
     exposing
-        ( caseIgnore
-        , caseSensitive
+        ( ignoreCase
+        , matchCase
         , highlight
         , highlightWith
         , searchCustom
@@ -22,7 +22,7 @@ type Mark
 
 
 testOptions =
-    { searchType = searchNormal caseIgnore whitespacePartOfTerm
+    { searchType = searchNormal ignoreCase whitespacePartOfTerm
     , minTermLength = 3
     , mapHit = Hit
     , mapMiss = Miss
@@ -88,7 +88,7 @@ caseSensitivity =
         [ describe "highlightWith case ignore" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal caseIgnore whitespacePartOfTerm }
+                    { testOptions | searchType = searchNormal ignoreCase whitespacePartOfTerm }
             in
             [ test "finds uppercase matches too when searching lowercase" <|
                 \() ->
@@ -102,7 +102,7 @@ caseSensitivity =
         , describe "highlightWith case sensitive" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal caseSensitive whitespacePartOfTerm }
+                    { testOptions | searchType = searchNormal matchCase whitespacePartOfTerm }
             in
             [ test "won't find uppercase matches when searching lowercase" <|
                 \() ->

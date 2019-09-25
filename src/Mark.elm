@@ -1,6 +1,6 @@
 module Mark exposing
-    ( caseIgnore
-    , caseSensitive
+    ( ignoreCase
+    , matchCase
     , defaultOptions
     , highlight
     , highlightWith
@@ -28,14 +28,14 @@ type Case
 
 
 {-| -}
-caseSensitive : Case
-caseSensitive =
+matchCase : Case
+matchCase =
     CaseSensitive
 
 
 {-| -}
-caseIgnore : Case
-caseIgnore =
+ignoreCase : Case
+ignoreCase =
     CaseIgnore
 
 
