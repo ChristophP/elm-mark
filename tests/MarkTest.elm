@@ -4,10 +4,10 @@ import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Mark
     exposing
-        ( ignoreCase
-        , matchCase
-        , highlight
+        ( highlight
         , highlightWith
+        , ignoreCase
+        , matchCase
         , searchCustom
         , searchNormal
         , whitespacePartOfTerm
@@ -132,11 +132,36 @@ minLenghtTests =
                         highlightWith options searchTerm "Peter assi Ha"
 
                     expectedResult =
-                        if minLength < String.length searchTerm then
+                        if minLength <= String.length searchTerm then
                             [ Miss "Peter ", Hit "assi", Miss " Ha" ]
 
                         else
                             [ Miss "Peter assi Ha" ]
                 in
                 result |> Expect.equal expectedResult
+        ]
+
+
+multiWord =
+    describe "highlightWith multiword search" <|
+        let
+            options =
+                { testOptions | whitespace = whitespaceSeparatesWords }
+        in
+        [ test "does regular search if term doens't contain whitespace" <|
+            \() ->
+                highlightWith options "assi" "Hi assi Peter"
+                    |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " Peter" ]
+        , test "searches multiple words when term has whitespace" <|
+            \() ->
+                highlightWith options "assi peter" "Hi assi Peter"
+                    |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " ", Hit "Peter" ]
+        , test "also workds with 3 words" <|
+            \() ->
+                highlightWith options "assi peter hil" "Hill assi Peter"
+                    |> Expect.equal [ Hit "Hil", Miss "l ", Hit "assi", Miss " ", Hit "Peter" ]
+        , test "minTermLength is still respected" <|
+            \() ->
+                highlightWith options "assi peter hi" "Hi assi Peter"
+                    |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " ", Hit "Peter" ]
         ]

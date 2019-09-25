@@ -1,5 +1,6 @@
 module Internal exposing
     ( GetIndexesFn
+    , applyMinLengthCheck
     , filterLastTwo
     , multiWordGetIndexes
     , stringIndexes
@@ -44,20 +45,30 @@ type alias GetIndexesFn =
     String -> String -> List ( Int, Int )
 
 
-addEnd : String -> List Int -> List ( Int, Int )
-addEnd term =
+addEnds : String -> List Int -> List ( Int, Int )
+addEnds term =
     List.map (\start -> ( start, start + String.length term ))
 
 
-stringIndexes : String -> String -> List ( Int, Int )
+applyMinLengthCheck : Int -> GetIndexesFn -> GetIndexesFn
+applyMinLengthCheck minLength getIndexes term content =
+    if minLength <= String.length term then
+        getIndexes term content
+
+    else
+        []
+
+
+stringIndexes : GetIndexesFn
 stringIndexes term content =
-    String.indexes term content |> addEnd term
+    String.indexes term content
+        |> addEnds term
 
 
-stringIndexesIgnoreCase : String -> String -> List ( Int, Int )
+stringIndexesIgnoreCase : GetIndexesFn
 stringIndexesIgnoreCase term content =
     String.indexes (String.toLower term) (String.toLower content)
-        |> addEnd term
+        |> addEnds term
 
 
 multiWordGetIndexes : GetIndexesFn -> GetIndexesFn

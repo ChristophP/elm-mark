@@ -14,6 +14,7 @@ import Html exposing (Html)
 import Internal
     exposing
         ( GetIndexesFn
+        , applyMinLengthCheck
         , filterLastTwo
         , multiWordGetIndexes
         , stringIndexes
@@ -96,38 +97,37 @@ defaultOptions =
 
 
 pickGetIndexesFn : Options a -> GetIndexesFn
-pickGetIndexesFn { searchType, whitespace } =
-    case ( searchType, whitespace ) of
-        ( SearchNormal CaseIgnore, WhitespacePartOfTerm ) ->
-            stringIndexesIgnoreCase
+pickGetIndexesFn { searchType, whitespace, minTermLength } =
+    let
+        getIndexes =
+            applyMinLengthCheck minTermLength <|
+                case searchType of
+                    SearchNormal caseSensitivity ->
+                        case caseSensitivity of
+                            CaseIgnore ->
+                                stringIndexesIgnoreCase
 
-        ( SearchNormal CaseSensitive, WhitespacePartOfTerm ) ->
-            stringIndexes
+                            CaseSensitive ->
+                                stringIndexes
 
-        ( SearchNormal CaseIgnore, WhitespaceSeparatesWords ) ->
-            multiWordGetIndexes stringIndexesIgnoreCase
-
-        ( SearchNormal CaseSensitive, WhitespaceSeparatesWords ) ->
-            multiWordGetIndexes stringIndexes
-
-        ( SearchCustom getIndexes, WhitespacePartOfTerm ) ->
+                    SearchCustom customGetIndexes ->
+                        customGetIndexes
+    in
+    case whitespace of
+        WhitespacePartOfTerm ->
             getIndexes
 
-        ( SearchCustom getIndexes, WhitespaceSeparatesWords ) ->
+        WhitespaceSeparatesWords ->
             multiWordGetIndexes getIndexes
 
 
 partitionByTerm : Options a -> String -> String -> List a
 partitionByTerm options term content =
-    if options.minTermLength < String.length term then
-        let
-            indexes =
-                pickGetIndexesFn options term content
-        in
-        partitionByTermHelp options (List.reverse indexes) term content []
-
-    else
-        [ options.mapMiss content ]
+    let
+        indexes =
+            pickGetIndexesFn options term content
+    in
+    partitionByTermHelp options (List.reverse indexes) term content []
 
 
 partitionByTermHelp : Options a -> List ( Int, Int ) -> String -> String -> List a -> List a
