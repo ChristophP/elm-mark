@@ -24,8 +24,8 @@ type Mark
 testOptions =
     { searchType = searchNormal caseIgnore whitespacePartOfTerm
     , minTermLength = 3
-    , hitWrapper = Hit
-    , missWrapper = Miss
+    , mapHit = Hit
+    , mapMiss = Miss
     }
 
 

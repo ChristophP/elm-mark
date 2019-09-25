@@ -17,8 +17,8 @@ import Html exposing (Html)
 type alias Options a =
     { searchType : SearchType
     , minTermLength : Int
-    , hitWrapper : String -> a
-    , missWrapper : String -> a
+    , mapHit : String -> a
+    , mapMiss : String -> a
     }
 
 
@@ -81,8 +81,8 @@ defaultOptions : Options (Html msg)
 defaultOptions =
     { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
     , minTermLength = 3
-    , hitWrapper = Html.text
-    , missWrapper = \miss -> Html.mark [] [ Html.text miss ]
+    , mapHit = Html.text
+    , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
     }
 
 partitionByTerm : Options a -> String -> String -> List a
@@ -103,14 +103,14 @@ partitionByTerm options term content =
         partitionByTermHelp options (List.reverse indexes) term content []
 
     else
-        [ options.missWrapper content ]
+        [ options.mapMiss content ]
 
 
 partitionByTermHelp : Options a -> List Int -> String -> String -> List a -> List a
-partitionByTermHelp ({ hitWrapper, missWrapper } as options) revPositions term content markers =
+partitionByTermHelp ({ mapHit, mapMiss } as options) revPositions term content markers =
     case revPositions of
         [] ->
-            wrapAndAddToMarkers content missWrapper markers
+            wrapAndAddToMarkers content mapMiss markers
 
         pos :: rest ->
             let
@@ -127,8 +127,8 @@ partitionByTermHelp ({ hitWrapper, missWrapper } as options) revPositions term c
                     String.dropRight (String.length miss + String.length hit) content
 
                 newMarkers =
-                    wrapAndAddToMarkers hit hitWrapper <|
-                        wrapAndAddToMarkers miss missWrapper markers
+                    wrapAndAddToMarkers hit mapHit <|
+                        wrapAndAddToMarkers miss mapMiss markers
             in
             partitionByTermHelp options rest term newContent newMarkers
 
