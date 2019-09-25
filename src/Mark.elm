@@ -16,6 +16,7 @@ import Html exposing (Html)
 {-| -}
 type alias Options a =
     { searchType : SearchType
+    , whitespace : Whitespace
     , minTermLength : Int
     , mapHit : String -> a
     , mapMiss : String -> a
@@ -57,15 +58,14 @@ whitespaceSeparatesWords =
 
 
 type SearchType
-    = SearchNormal Case Whitespace
+    = SearchNormal Case
     | SearchCustom (String -> String -> List Int)
 
 
-{-| Use normal search. You can configure case sensitivity,
-the way whitespace is treated and a min wordlength
-for the search to generate hits.
+{-| Use normal search. You can configure case sensitivity
+for the search.
 -}
-searchNormal : Case -> Whitespace -> SearchType
+searchNormal : Case -> SearchType
 searchNormal =
     SearchNormal
 
@@ -79,7 +79,8 @@ searchCustom =
 {-| -}
 defaultOptions : Options (Html msg)
 defaultOptions =
-    { searchType = SearchNormal CaseIgnore WhitespaceSeparatesWords
+    { searchType = SearchNormal CaseIgnore
+    , whitespace =  WhitespaceSeparatesWords
     , minTermLength = 3
     , mapHit = Html.text
     , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
@@ -91,10 +92,10 @@ partitionByTerm options term content =
         let
             indexes =
                 case options.searchType of
-                    SearchNormal CaseIgnore _ ->
+                    SearchNormal CaseIgnore ->
                         String.indexes (String.toLower term) (String.toLower content)
 
-                    SearchNormal CaseSensitive _ ->
+                    SearchNormal CaseSensitive ->
                         String.indexes term content
 
                     SearchCustom getIndexes ->

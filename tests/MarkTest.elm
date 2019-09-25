@@ -22,7 +22,8 @@ type Mark
 
 
 testOptions =
-    { searchType = searchNormal ignoreCase whitespacePartOfTerm
+    { searchType = searchNormal ignoreCase
+    , whitespace = whitespacePartOfTerm
     , minTermLength = 3
     , mapHit = Hit
     , mapMiss = Miss
@@ -88,7 +89,7 @@ caseSensitivity =
         [ describe "highlightWith case ignore" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal ignoreCase whitespacePartOfTerm }
+                    { testOptions | searchType = searchNormal ignoreCase }
             in
             [ test "finds uppercase matches too when searching lowercase" <|
                 \() ->
@@ -102,7 +103,7 @@ caseSensitivity =
         , describe "highlightWith case sensitive" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal matchCase whitespacePartOfTerm }
+                    { testOptions | searchType = searchNormal matchCase }
             in
             [ test "won't find uppercase matches when searching lowercase" <|
                 \() ->
