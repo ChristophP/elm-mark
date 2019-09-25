@@ -1,9 +1,9 @@
 module Mark exposing
-    ( ignoreCase
-    , matchCase
-    , defaultOptions
+    ( defaultOptions
     , highlight
     , highlightWith
+    , ignoreCase
+    , matchCase
     , searchCustom
     , searchNormal
     , whitespacePartOfTerm
@@ -11,6 +11,14 @@ module Mark exposing
     )
 
 import Html exposing (Html)
+import Internal
+    exposing
+        ( GetIndexesFn
+        , filterLastTwo
+        , multiWordGetIndexes
+        , stringIndexes
+        , stringIndexesIgnoreCase
+        )
 
 
 {-| -}
@@ -59,7 +67,7 @@ whitespaceSeparatesWords =
 
 type SearchType
     = SearchNormal Case
-    | SearchCustom (String -> String -> List Int)
+    | SearchCustom (String -> String -> List ( Int, Int ))
 
 
 {-| Use normal search. You can configure case sensitivity
@@ -71,7 +79,7 @@ searchNormal =
 
 
 {-| -}
-searchCustom : (String -> String -> List Int) -> SearchType
+searchCustom : (String -> String -> List ( Int, Int )) -> SearchType
 searchCustom =
     SearchCustom
 
@@ -80,26 +88,41 @@ searchCustom =
 defaultOptions : Options (Html msg)
 defaultOptions =
     { searchType = SearchNormal CaseIgnore
-    , whitespace =  WhitespaceSeparatesWords
+    , whitespace = WhitespaceSeparatesWords
     , minTermLength = 3
     , mapHit = Html.text
     , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
     }
+
+
+pickGetIndexesFn : Options a -> GetIndexesFn
+pickGetIndexesFn { searchType, whitespace } =
+    case ( searchType, whitespace ) of
+        ( SearchNormal CaseIgnore, WhitespacePartOfTerm ) ->
+            stringIndexesIgnoreCase
+
+        ( SearchNormal CaseSensitive, WhitespacePartOfTerm ) ->
+            stringIndexes
+
+        ( SearchNormal CaseIgnore, WhitespaceSeparatesWords ) ->
+            multiWordGetIndexes stringIndexesIgnoreCase
+
+        ( SearchNormal CaseSensitive, WhitespaceSeparatesWords ) ->
+            multiWordGetIndexes stringIndexes
+
+        ( SearchCustom getIndexes, WhitespacePartOfTerm ) ->
+            getIndexes
+
+        ( SearchCustom getIndexes, WhitespaceSeparatesWords ) ->
+            multiWordGetIndexes getIndexes
+
 
 partitionByTerm : Options a -> String -> String -> List a
 partitionByTerm options term content =
     if options.minTermLength < String.length term then
         let
             indexes =
-                case options.searchType of
-                    SearchNormal CaseIgnore ->
-                        String.indexes (String.toLower term) (String.toLower content)
-
-                    SearchNormal CaseSensitive ->
-                        String.indexes term content
-
-                    SearchCustom getIndexes ->
-                        getIndexes term content
+                pickGetIndexesFn options term content
         in
         partitionByTermHelp options (List.reverse indexes) term content []
 
@@ -107,22 +130,19 @@ partitionByTerm options term content =
         [ options.mapMiss content ]
 
 
-partitionByTermHelp : Options a -> List Int -> String -> String -> List a -> List a
+partitionByTermHelp : Options a -> List ( Int, Int ) -> String -> String -> List a -> List a
 partitionByTermHelp ({ mapHit, mapMiss } as options) revPositions term content markers =
     case revPositions of
         [] ->
             wrapAndAddToMarkers content mapMiss markers
 
-        pos :: rest ->
+        ( start, end ) :: rest ->
             let
-                end =
-                    pos + String.length term
-
                 miss =
                     String.dropLeft end content
 
                 hit =
-                    String.slice pos end content
+                    String.slice start end content
 
                 newContent =
                     String.dropRight (String.length miss + String.length hit) content
@@ -142,6 +162,7 @@ wrapAndAddToMarkers item wrapper markers =
 
         _ ->
             wrapper item :: markers
+
 
 {-| -}
 highlightWith : Options a -> String -> String -> List a
