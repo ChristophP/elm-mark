@@ -77,14 +77,7 @@ multiWordGetIndexes getIndexes term content =
         getIndexes term content
 
     else
-        let
-            words =
-                String.words term
-
-            indexes =
-                List.concatMap (\word -> getIndexes word content) words
-
-            sortedIndexes =
-                List.sortBy Tuple.first indexes
-        in
-        filterLastTwo (\( _, end ) ( start, _ ) -> end < start) sortedIndexes
+        String.words term
+            |> List.concatMap (\word -> getIndexes word content)
+            |> List.sortBy Tuple.first
+            |> filterLastTwo (\( _, end ) ( start, _ ) -> end < start)
