@@ -1,8 +1,8 @@
 module Mark exposing
     ( defaultOptions
-    , highlight
-    , highlightWith
     , ignoreCase
+    , mark
+    , markWith
     , matchCase
     , multiWord
     , searchCustom
@@ -121,17 +121,8 @@ pickGetIndexesFn { searchType, whitespace, minTermLength } =
             multiWordGetIndexes getIndexes
 
 
-partitionByTerm : Options a -> String -> String -> List a
-partitionByTerm options term content =
-    let
-        indexes =
-            pickGetIndexesFn options term content
-    in
-    partitionByTermHelp options (List.reverse indexes) term content []
-
-
-partitionByTermHelp : Options a -> List ( Int, Int ) -> String -> String -> List a -> List a
-partitionByTermHelp ({ mapHit, mapMiss } as options) revPositions term content markers =
+markWithHelp : Options a -> List ( Int, Int ) -> String -> String -> List a -> List a
+markWithHelp ({ mapHit, mapMiss } as options) revPositions term content markers =
     case revPositions of
         [] ->
             wrapAndAddToMarkers content mapMiss markers
@@ -151,7 +142,7 @@ partitionByTermHelp ({ mapHit, mapMiss } as options) revPositions term content m
                     wrapAndAddToMarkers hit mapHit <|
                         wrapAndAddToMarkers miss mapMiss markers
             in
-            partitionByTermHelp options rest term newContent newMarkers
+            markWithHelp options rest term newContent newMarkers
 
 
 wrapAndAddToMarkers : String -> (String -> a) -> List a -> List a
@@ -165,12 +156,16 @@ wrapAndAddToMarkers item wrapper markers =
 
 
 {-| -}
-highlightWith : Options a -> String -> String -> List a
-highlightWith options term content =
-    partitionByTerm options term content
+markWith : Options a -> String -> String -> List a
+markWith options term content =
+    let
+        indexes =
+            pickGetIndexesFn options term content
+    in
+    markWithHelp options (List.reverse indexes) term content []
 
 
 {-| -}
-highlight : String -> String -> List (Html msg)
-highlight =
-    highlightWith defaultOptions
+mark : String -> String -> List (Html msg)
+mark =
+    markWith defaultOptions
