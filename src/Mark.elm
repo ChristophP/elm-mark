@@ -15,7 +15,6 @@ import Internal
     exposing
         ( GetIndexesFn
         , applyMinLengthCheck
-        , filterLastTwo
         , multiWordGetIndexes
         , stringIndexes
         , stringIndexesIgnoreCase
