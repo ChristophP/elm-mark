@@ -8,10 +8,10 @@ import Mark
         , highlightWith
         , ignoreCase
         , matchCase
+        , multiWord
         , searchCustom
         , searchNormal
-        , whitespacePartOfTerm
-        , whitespaceSeparatesWords
+        , singleWord
         )
 import Test exposing (..)
 
@@ -23,7 +23,7 @@ type Mark
 
 testOptions =
     { searchType = searchNormal ignoreCase
-    , whitespace = whitespacePartOfTerm
+    , whitespace = singleWord
     , minTermLength = 3
     , mapHit = Hit
     , mapMiss = Miss
@@ -142,11 +142,11 @@ minLenghtTests =
         ]
 
 
-multiWord =
+multiWords =
     describe "highlightWith multiword search" <|
         let
             options =
-                { testOptions | whitespace = whitespaceSeparatesWords }
+                { testOptions | whitespace = multiWord }
         in
         [ test "does regular search if term doens't contain whitespace" <|
             \() ->
@@ -169,5 +169,3 @@ multiWord =
                 highlightWith options "enn Tenness" "Tennessee"
                     |> Expect.equal [ Hit "Tenness", Miss "ee" ]
         ]
-
-

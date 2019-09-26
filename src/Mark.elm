@@ -4,10 +4,10 @@ module Mark exposing
     , highlightWith
     , ignoreCase
     , matchCase
+    , multiWord
     , searchCustom
     , searchNormal
-    , whitespacePartOfTerm
-    , whitespaceSeparatesWords
+    , singleWord
     )
 
 import Html exposing (Html)
@@ -50,20 +50,20 @@ ignoreCase =
 
 
 type Whitespace
-    = WhitespacePartOfTerm
-    | WhitespaceSeparatesWords
+    = SingleWord
+    | MultiWord
 
 
 {-| -}
-whitespacePartOfTerm : Whitespace
-whitespacePartOfTerm =
-    WhitespacePartOfTerm
+singleWord : Whitespace
+singleWord =
+    SingleWord
 
 
 {-| -}
-whitespaceSeparatesWords : Whitespace
-whitespaceSeparatesWords =
-    WhitespaceSeparatesWords
+multiWord : Whitespace
+multiWord =
+    MultiWord
 
 
 type SearchType
@@ -89,7 +89,7 @@ searchCustom =
 defaultOptions : Options (Html msg)
 defaultOptions =
     { searchType = SearchNormal CaseIgnore
-    , whitespace = WhitespaceSeparatesWords
+    , whitespace = SingleWord
     , minTermLength = 3
     , mapHit = Html.text
     , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
@@ -114,10 +114,10 @@ pickGetIndexesFn { searchType, whitespace, minTermLength } =
                         customGetIndexes
     in
     case whitespace of
-        WhitespacePartOfTerm ->
+        SingleWord ->
             getIndexes
 
-        WhitespaceSeparatesWords ->
+        MultiWord ->
             multiWordGetIndexes getIndexes
 
 
