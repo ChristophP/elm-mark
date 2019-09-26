@@ -2,10 +2,24 @@
 
 Search Term Highlighting for Elm Apps
 
-## THIS IS WIP!!!
+## How to use
+
+```elm
+import Html
+import Mark
+
+main = Html.p [] <| Mark.mark "ness" "Tennessee"
+-- will render <p>Ten<mark>ness</mark>ee</p>
+```
+
+## Options and Configuration
+
+TODO
+
+## Developing
 
 Developing and running the tests.
 
 ```
-npm run test:watch
+npm run dev
 ```
