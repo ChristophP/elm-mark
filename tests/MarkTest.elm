@@ -164,4 +164,10 @@ multiWord =
             \() ->
                 highlightWith options "assi peter hi" "Hi assi Peter"
                     |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " ", Hit "Peter" ]
+        , test "will disregard hits occuring within previous hits" <|
+            \() ->
+                highlightWith options "enn Tenness" "Tennessee"
+                    |> Expect.equal [ Hit "Tenness", Miss "ee" ]
         ]
+
+

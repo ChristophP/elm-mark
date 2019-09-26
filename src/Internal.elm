@@ -85,6 +85,6 @@ multiWordGetIndexes getIndexes term content =
                 List.concatMap (\word -> getIndexes word content) words
 
             sortedIndexes =
-                List.sortBy Tuple.second indexes
+                List.sortBy Tuple.first indexes
         in
         filterLastTwo (\( _, end ) ( start, _ ) -> end < start) sortedIndexes
