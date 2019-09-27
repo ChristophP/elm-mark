@@ -169,3 +169,29 @@ multiWords =
                 markWith options "enn Tenness" "Tennessee"
                     |> Expect.equal [ Hit "Tenness", Miss "ee" ]
         ]
+
+
+customLogic =
+    describe "markWith searchCustom" <|
+        let
+            -- normally you could implement logic based on term and content
+            -- but we only wanna test that the logic is used here
+            getIndexes term content =
+                [ ( 0, 2 ), ( 3, 7 ) ]
+
+            options =
+                { testOptions | searchType = searchCustom getIndexes }
+        in
+        [ test "uses the indexes of the custom search logic" <|
+            \() ->
+                markWith options "assi" "Hi assi Peter"
+                    |> Expect.equal [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+        , test "also works with multiword searchh" <|
+            \() ->
+                let
+                    multiOptions =
+                        { options | whitespace = multiWord }
+                in
+                markWith options "assi Peter" "Hi assi Peter"
+                    |> Expect.equal [ Miss "Miss", Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+        ]
