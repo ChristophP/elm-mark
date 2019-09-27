@@ -177,7 +177,6 @@ customGlobSearch term content =
         pattern =
             String.replace "*" "\\w*" term
                 |> String.replace "?" "\\w"
-                |> Debug.log "pattern"
 
         regexOptions =
             { caseInsensitive = True
@@ -186,9 +185,8 @@ customGlobSearch term content =
     in
     case Regex.fromStringWith regexOptions pattern of
         Just regex ->
-            Regex.find regex (Debug.log "content" content)
+            Regex.find regex content
                 |> List.map (\{ match, index } -> ( index, index + String.length match ))
-                |> Debug.log "indices"
 
         Nothing ->
             []
