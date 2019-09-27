@@ -57,7 +57,7 @@ basic =
                                     Expect.pass
 
                                 _ ->
-                                    Expect.fail "Did not start with a hit."
+                                    Expect.fail "Did not start with a miss."
                        )
         , test "ends with hit when hit is last" <|
             \() ->
