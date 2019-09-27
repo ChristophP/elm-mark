@@ -71,6 +71,11 @@ stringIndexesIgnoreCase term content =
         |> addEnds term
 
 
+endsBeforeNextStarts : ( Int, Int ) -> ( Int, Int ) -> Bool
+endsBeforeNextStarts ( _, end ) ( start, _ ) =
+    end < start
+
+
 multiWordGetIndexes : GetIndexesFn -> GetIndexesFn
 multiWordGetIndexes getIndexes term content =
     if not (String.contains " " term) then
@@ -80,4 +85,4 @@ multiWordGetIndexes getIndexes term content =
         String.words term
             |> List.concatMap (\word -> getIndexes word content)
             |> List.sortBy Tuple.first
-            |> filterLastTwo (\( _, end ) ( start, _ ) -> end < start)
+            |> filterLastTwo endsBeforeNextStarts
