@@ -13,6 +13,7 @@ import Mark
         , searchNormal
         , singleWord
         )
+import Regex
 import Test exposing (..)
 
 
@@ -171,27 +172,70 @@ multiWords =
         ]
 
 
-customLogic =
-    describe "markWith searchCustom" <|
-        let
-            -- normally you could implement logic based on term and content
-            -- but we only wanna test that the logic is used here
-            getIndexes term content =
-                [ ( 0, 2 ), ( 3, 7 ) ]
+customGlobSearch term content =
+    let
+        pattern =
+            String.replace "*" "\\w*" term
+                |> String.replace "?" "\\w"
+                |> Debug.log "pattern"
 
-            options =
-                { testOptions | searchType = searchCustom getIndexes }
-        in
-        [ test "uses the indexes of the custom search logic" <|
-            \() ->
-                markWith options "assi" "Hi assi Peter"
-                    |> Expect.equal [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
-        , test "also works with multiword searchh" <|
-            \() ->
-                let
-                    multiOptions =
-                        { options | whitespace = multiWord }
-                in
-                markWith options "assi Peter" "Hi assi Peter"
-                    |> Expect.equal [ Miss "Miss", Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+        regexOptions =
+            { caseInsensitive = True
+            , multiline = False
+            }
+    in
+    case Regex.fromStringWith regexOptions pattern of
+        Just regex ->
+            Regex.find regex (Debug.log "content" content)
+                |> List.map (\{ match, index } -> ( index, index + String.length match ))
+                |> Debug.log "indices"
+
+        Nothing ->
+            []
+
+
+customLogic =
+    concat
+        [ describe "markWith searchCustom dummy" <|
+            let
+                -- normally you could implement logic based on term and content
+                -- but we only wanna test that the logic is used here
+                getIndexes term content =
+                    [ ( 0, 2 ), ( 3, 7 ) ]
+
+                options =
+                    { testOptions | searchType = searchCustom getIndexes }
+            in
+            [ test "uses the indexes of the custom search logic" <|
+                \() ->
+                    markWith options "assi" "Hi assi Peter"
+                        |> Expect.equal [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+            ]
+        , describe "markWith searchCustom real implementation" <|
+            let
+                options =
+                    { testOptions | searchType = searchCustom customGlobSearch }
+            in
+            [ test "can for example perform glob search with *" <|
+                \() ->
+                    markWith options "as*" "assi Peter Assissi"
+                        |> Expect.equal [ Hit "assi", Miss " Peter ", Hit "Assissi" ]
+            , test "can for example perform glob search with ?" <|
+                \() ->
+                    markWith options "as?i" "assi Peter Assissi"
+                        |> Expect.equal [ Hit "assi", Miss " Peter ", Hit "Assi", Miss "ssi" ]
+            ]
+        , describe "markWith searchCustom with multiWord" <|
+            let
+                options =
+                    { testOptions
+                        | whitespace = multiWord
+                        , searchType = searchCustom customGlobSearch
+                    }
+            in
+            [ test "also works" <|
+                \() ->
+                    markWith options "as* Pe?er" "Hi assi Peter"
+                        |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " ", Hit "Peter" ]
+            ]
         ]
