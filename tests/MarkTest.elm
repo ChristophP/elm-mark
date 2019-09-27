@@ -201,13 +201,26 @@ customLogic =
                 getIndexes term content =
                     [ ( 0, 2 ), ( 3, 7 ) ]
 
+                unsortedGetIndexes term content =
+                    [ ( 3, 7 ), ( 0, 2 ) ]
+
                 options =
                     { testOptions | searchType = searchCustom getIndexes }
+
+                unsortedOptions =
+                    { testOptions | searchType = searchCustom unsortedGetIndexes }
+
+                expectedResult =
+                    [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
             in
             [ test "uses the indexes of the custom search logic" <|
                 \() ->
-                    markWith options "assi" "Hi assi Peter"
-                        |> Expect.equal [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+                    markWith options "doesn't matter" "Hi assi Peter"
+                        |> Expect.equal expectedResult
+            , test "won't find all all matches if indexes are not sorted" <|
+                \() ->
+                    markWith unsortedOptions "doesn't matter" "Hi assi Peter"
+                        |> Expect.notEqual expectedResult
             ]
         , describe "markWith searchCustom real implementation" <|
             let
