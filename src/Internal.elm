@@ -71,9 +71,9 @@ stringIndexesIgnoreCase term content =
         |> addEnds term
 
 
-endsBeforeNextStarts : ( Int, Int ) -> ( Int, Int ) -> Bool
-endsBeforeNextStarts ( _, end ) ( start, _ ) =
-    end < start
+removeOverlaps : List ( Int, Int ) -> List ( Int, Int )
+removeOverlaps =
+    filterLastTwo (\( _, end ) ( start, _ ) -> end < start)
 
 
 multiWordGetIndexes : GetIndexesFn -> GetIndexesFn
@@ -85,4 +85,4 @@ multiWordGetIndexes getIndexes term content =
         String.words term
             |> List.concatMap (\word -> getIndexes word content)
             |> List.sortBy Tuple.first
-            |> filterLastTwo endsBeforeNextStarts
+            |> removeOverlaps
