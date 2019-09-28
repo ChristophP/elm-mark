@@ -13,6 +13,7 @@ import Mark
         , searchNormal
         , singleWord
         )
+import Regex
 import Test exposing (..)
 
 
@@ -168,4 +169,84 @@ multiWords =
             \() ->
                 markWith options "enn Tenness" "Tennessee"
                     |> Expect.equal [ Hit "Tenness", Miss "ee" ]
+        ]
+
+
+customGlobSearch term content =
+    let
+        pattern =
+            String.replace "*" "\\w*" term
+                |> String.replace "?" "\\w"
+
+        regexOptions =
+            { caseInsensitive = True
+            , multiline = False
+            }
+    in
+    case Regex.fromStringWith regexOptions pattern of
+        Just regex ->
+            Regex.find regex content
+                |> List.map (\{ match, index } -> ( index, index + String.length match ))
+
+        Nothing ->
+            []
+
+
+customLogic =
+    concat
+        [ describe "markWith searchCustom dummy" <|
+            let
+                -- normally you could implement logic based on term and content
+                -- but we only wanna test that the logic is used here
+                getIndexes term content =
+                    [ ( 0, 2 ), ( 3, 7 ) ]
+
+                unsortedGetIndexes term content =
+                    [ ( 3, 7 ), ( 0, 2 ) ]
+
+                options =
+                    { testOptions | searchType = searchCustom getIndexes }
+
+                unsortedOptions =
+                    { testOptions | searchType = searchCustom unsortedGetIndexes }
+
+                expectedResult =
+                    [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
+            in
+            [ test "uses the indexes of the custom search logic" <|
+                \() ->
+                    markWith options "doesn't matter" "Hi assi Peter"
+                        |> Expect.equal expectedResult
+            , test "won't find all all matches if indexes are not sorted" <|
+                \() ->
+                    markWith unsortedOptions "doesn't matter" "Hi assi Peter"
+                        |> Expect.notEqual expectedResult
+            ]
+        , describe "markWith searchCustom real implementation" <|
+            let
+                options =
+                    { testOptions | searchType = searchCustom customGlobSearch }
+            in
+            [ test "can for example perform glob search with *" <|
+                \() ->
+                    markWith options "as*" "assi Peter Assissi"
+                        |> Expect.equal [ Hit "assi", Miss " Peter ", Hit "Assissi" ]
+            , test "can for example perform glob search with ?" <|
+                \() ->
+                    markWith options "as?i" "assi Peter Assissi"
+                        |> Expect.equal [ Hit "assi", Miss " Peter ", Hit "Assi", Miss "ssi" ]
+            ]
+        , describe "markWith searchCustom with multiWord" <|
+            let
+                options =
+                    { testOptions
+                        | whitespace = multiWord
+                        , searchType = searchCustom customGlobSearch
+                    }
+            in
+            [ test "also works" <|
+                \() ->
+                    markWith options "as* Pe?er" "Hi assi Peter"
+                        |> Expect.equal [ Miss "Hi ", Hit "assi", Miss " ", Hit "Peter" ]
+            ]
         ]
