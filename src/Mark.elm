@@ -161,8 +161,8 @@ are the following:
         { searchType = searchNormal ignoreCase
         , whitespace = singleWord
         , minTermLength = 3
-        , mapHit = Html.text
-        , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
+        , mapHit = \miss -> Html.mark [] [ Html.text miss ]
+        , mapMiss = Html.text
         }
 
 This means that search will ignore case, the search term will be treated as
@@ -176,8 +176,8 @@ defaultOptions =
     { searchType = SearchNormal CaseIgnore
     , whitespace = SingleWord
     , minTermLength = 3
-    , mapHit = Html.text
-    , mapMiss = \miss -> Html.mark [] [ Html.text miss ]
+    , mapHit = \miss -> Html.mark [] [ Html.text miss ]
+    , mapMiss = Html.text
     }
 
 
