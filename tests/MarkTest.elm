@@ -4,13 +4,13 @@ import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Mark
     exposing
-        ( ignoreCase
+        ( customSearch
+        , ignoreCase
         , mark
         , markWith
         , matchCase
         , multiWord
-        , searchCustom
-        , searchNormal
+        , normalSearch
         , singleWord
         )
 import Regex
@@ -23,7 +23,7 @@ type Mark
 
 
 testOptions =
-    { searchType = searchNormal ignoreCase
+    { searchType = normalSearch ignoreCase
     , whitespace = singleWord
     , minTermLength = 3
     , mapHit = Hit
@@ -90,7 +90,7 @@ caseSensitivity =
         [ describe "markWith case ignore" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal ignoreCase }
+                    { testOptions | searchType = normalSearch ignoreCase }
             in
             [ test "finds uppercase matches too when searching lowercase" <|
                 \() ->
@@ -104,7 +104,7 @@ caseSensitivity =
         , describe "markWith case sensitive" <|
             let
                 options =
-                    { testOptions | searchType = searchNormal matchCase }
+                    { testOptions | searchType = normalSearch matchCase }
             in
             [ test "won't find uppercase matches when searching lowercase" <|
                 \() ->
@@ -194,7 +194,7 @@ customGlobSearch term content =
 
 customLogic =
     concat
-        [ describe "markWith searchCustom dummy" <|
+        [ describe "markWith customSearch dummy" <|
             let
                 -- normally you could implement logic based on term and content
                 -- but we only wanna test that the logic is used here
@@ -205,10 +205,10 @@ customLogic =
                     [ ( 3, 7 ), ( 0, 2 ) ]
 
                 options =
-                    { testOptions | searchType = searchCustom getIndexes }
+                    { testOptions | searchType = customSearch getIndexes }
 
                 unsortedOptions =
-                    { testOptions | searchType = searchCustom unsortedGetIndexes }
+                    { testOptions | searchType = customSearch unsortedGetIndexes }
 
                 expectedResult =
                     [ Hit "Hi", Miss " ", Hit "assi", Miss " Peter" ]
@@ -222,10 +222,10 @@ customLogic =
                     markWith unsortedOptions "doesn't matter" "Hi assi Peter"
                         |> Expect.notEqual expectedResult
             ]
-        , describe "markWith searchCustom real implementation" <|
+        , describe "markWith customSearch real implementation" <|
             let
                 options =
-                    { testOptions | searchType = searchCustom customGlobSearch }
+                    { testOptions | searchType = customSearch customGlobSearch }
             in
             [ test "can for example perform glob search with *" <|
                 \() ->
@@ -236,12 +236,12 @@ customLogic =
                     markWith options "as?i" "assi Peter Assissi"
                         |> Expect.equal [ Hit "assi", Miss " Peter ", Hit "Assi", Miss "ssi" ]
             ]
-        , describe "markWith searchCustom with multiWord" <|
+        , describe "markWith customSearch with multiWord" <|
             let
                 options =
                     { testOptions
                         | whitespace = multiWord
-                        , searchType = searchCustom customGlobSearch
+                        , searchType = customSearch customGlobSearch
                     }
             in
             [ test "also works" <|

@@ -1,14 +1,23 @@
 module Mark exposing
-    ( defaultOptions
-    , ignoreCase
-    , mark
-    , markWith
-    , matchCase
-    , multiWord
-    , searchCustom
-    , searchNormal
-    , singleWord
+    ( mark, markWith
+    , Options, defaultOptions, SearchType, normalSearch, customSearch, Case, ignoreCase, matchCase, Whitespace, singleWord, multiWord
     )
+
+{-| This library gives you the tools you need to mark text
+according to one or multiple search terms. You can use the default or
+configure the search with options.
+
+
+# Marking
+
+@docs mark, markWith
+
+
+# Options
+
+@docs Options, defaultOptions, SearchType, normalSearch, customSearch, Case, ignoreCase, matchCase, Whitespace, singleWord, multiWord
+
+-}
 
 import Html exposing (Html)
 import Internal
@@ -31,6 +40,7 @@ type alias Options a =
     }
 
 
+{-| -}
 type Case
     = CaseSensitive
     | CaseIgnore
@@ -48,6 +58,7 @@ ignoreCase =
     CaseIgnore
 
 
+{-| -}
 type Whitespace
     = SingleWord
     | MultiWord
@@ -70,17 +81,17 @@ type SearchType
     | SearchCustom (String -> String -> List ( Int, Int ))
 
 
-{-| Use normal search. You can configure case sensitivity
-for the search.
+{-| Normal search is the easiest to start with. You can configure case
+sensitivity. If you need lots of flexibility, use [`customSearch`]
 -}
-searchNormal : Case -> SearchType
-searchNormal =
+normalSearch : Case -> SearchType
+normalSearch =
     SearchNormal
 
 
 {-| -}
-searchCustom : (String -> String -> List ( Int, Int )) -> SearchType
-searchCustom =
+customSearch : (String -> String -> List ( Int, Int )) -> SearchType
+customSearch =
     SearchCustom
 
 
@@ -154,7 +165,9 @@ wrapAndAddToMarkers item wrapper markers =
             wrapper item :: markers
 
 
-{-| -}
+{-| Customize how marking works. Check out the [`options`](#Options)
+to what can be configured.
+-}
 markWith : Options a -> String -> String -> List a
 markWith options term content =
     let
@@ -164,7 +177,16 @@ markWith options term content =
     markWithHelp options (List.reverse indexes) term content []
 
 
-{-| -}
+{-| Highlight search terms within text. This uses the default options.
+Use [`markWith`](#markWith) for custom options.
+
+
+    main =
+        Html.p [] <| Mark.mark "ness" "Tennessee"
+
+    -- will render <p>Ten<mark>ness</mark>ee</p>
+
+-}
 mark : String -> String -> List (Html msg)
 mark =
     markWith defaultOptions

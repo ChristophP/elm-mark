@@ -71,6 +71,8 @@ stringIndexesIgnoreCase term content =
         |> addEnds term
 
 
+{-| Will only remove overlaps properly if the input list is sorted !!!
+-}
 removeOverlaps : List ( Int, Int ) -> List ( Int, Int )
 removeOverlaps =
     filterLastTwo (\( _, end ) ( start, _ ) -> end < start)
