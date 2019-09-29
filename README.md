@@ -8,8 +8,8 @@ Check out the [demo](https://elm-mark-demo.deedop.de/).
 
 Marking keywords in text is harder than it sounds. I had to do it a couple of
 times and was amazed with the amount of code needed to do something so seemingly simple.
-This package wrapped everything you need to do search term highlighting.
-I spent quite some time designing the API to where it is right now so I hope
+This package wraps everything you need, to do search term highlighting.
+I spent quite some time polishing the API to where it is right now, so I hope
 you'll find it pleasant to use and highlight away. :-)
 
 ## How to use
@@ -25,7 +25,7 @@ main = Html.p [] <| Mark.mark "ness" "Tennessee"
 ## Options and Configuration
 
 There are a bunch of options ranging from no-config to fully customizable.
-Options include case sensitiviy, single word, multi word search and search term
+Options include case sensitiviy, single word/multi word search and search term
 length threshold. You can also provide your own custom search logic, should the
 available options not meet your needs.
 Here's a small example of configuring case sensitivity.
