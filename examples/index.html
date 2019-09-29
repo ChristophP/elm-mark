@@ -4322,15 +4322,49 @@ function _Browser_load(url)
 }
 var author$project$Main$update = F2(
 	function (msg, model) {
-		var val = msg.a;
-		return _Utils_update(
-			model,
-			{searchTerm: val});
+		switch (msg.$) {
+			case 'SearchTermChange':
+				var val = msg.a;
+				return _Utils_update(
+					model,
+					{searchTerm: val});
+			case 'CaseChanged':
+				var case_ = msg.a;
+				return _Utils_update(
+					model,
+					{caseSensitivity: case_});
+			case 'WhitespaceChanged':
+				var whitespace = msg.a;
+				return _Utils_update(
+					model,
+					{whitespace: whitespace});
+			case 'MinTermLengthChanged':
+				var minTermLength = msg.a;
+				return _Utils_update(
+					model,
+					{minTermLength: minTermLength});
+			default:
+				return model;
+		}
 	});
+var author$project$Main$CaseChanged = function (a) {
+	return {$: 'CaseChanged', a: a};
+};
+var author$project$Main$MinTermLengthChanged = function (a) {
+	return {$: 'MinTermLengthChanged', a: a};
+};
+var author$project$Main$NoOp = {$: 'NoOp'};
 var author$project$Main$SearchTermChange = function (a) {
 	return {$: 'SearchTermChange', a: a};
 };
-var author$project$Main$searchText = '"You can\'t, if you can\'t feel it, if it never\nRises from the soul, and sways\nThe heart of every single hearer,\nWith deepest power, in simple ways.\nYou\'ll sit forever, gluing things together,\nCooking up a stew from other\'s scraps,\nBlowing on a miserable fire,\nMade from your heap of dying ash.\nLet apes and children praise your art,\nIf their admiration\'s to your taste,\nBut you\'ll never speak from heart to heart,\nUnless it rises up from your heart\'s space." ';
+var author$project$Main$WhitespaceChanged = function (a) {
+	return {$: 'WhitespaceChanged', a: a};
+};
+var author$project$Mark$CaseIgnore = {$: 'CaseIgnore'};
+var author$project$Mark$SearchNormal = function (a) {
+	return {$: 'SearchNormal', a: a};
+};
+var author$project$Mark$SingleWord = {$: 'SingleWord'};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -4824,11 +4858,198 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$mark = _VirtualDom_node('mark');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var author$project$Main$viewOption = function (options) {
-	return elm$html$Html$text('');
+var author$project$Mark$defaultOptions = {
+	mapHit: function (miss) {
+		return A2(
+			elm$html$Html$mark,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text(miss)
+				]));
+	},
+	mapMiss: elm$html$Html$text,
+	minTermLength: 3,
+	searchType: author$project$Mark$SearchNormal(author$project$Mark$CaseIgnore),
+	whitespace: author$project$Mark$SingleWord
 };
+var author$project$Mark$normalSearch = author$project$Mark$SearchNormal;
+var author$project$Main$modelToOptions = function (model) {
+	var opts = author$project$Mark$defaultOptions;
+	return _Utils_update(
+		opts,
+		{
+			minTermLength: model.minTermLength,
+			searchType: author$project$Mark$normalSearch(model.caseSensitivity),
+			whitespace: model.whitespace
+		});
+};
+var elm$core$Basics$not = _Basics_not;
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$label = _VirtualDom_node('label');
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$core$List$foldrHelper = F4(
+	function (fn, acc, ctr, ls) {
+		if (!ls.b) {
+			return acc;
+		} else {
+			var a = ls.a;
+			var r1 = ls.b;
+			if (!r1.b) {
+				return A2(fn, a, acc);
+			} else {
+				var b = r1.a;
+				var r2 = r1.b;
+				if (!r2.b) {
+					return A2(
+						fn,
+						a,
+						A2(fn, b, acc));
+				} else {
+					var c = r2.a;
+					var r3 = r2.b;
+					if (!r3.b) {
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(fn, c, acc)));
+					} else {
+						var d = r3.a;
+						var r4 = r3.b;
+						var res = (ctr > 500) ? A3(
+							elm$core$List$foldl,
+							fn,
+							acc,
+							elm$core$List$reverse(r4)) : A4(elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(
+									fn,
+									c,
+									A2(fn, d, res))));
+					}
+				}
+			}
+		}
+	});
+var elm$core$List$foldr = F3(
+	function (fn, acc, ls) {
+		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
+	});
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var elm$core$Tuple$second = function (_n0) {
+	var y = _n0.b;
+	return y;
+};
+var elm$html$Html$Attributes$classList = function (classes) {
+	return elm$html$Html$Attributes$class(
+		A2(
+			elm$core$String$join,
+			' ',
+			A2(
+				elm$core$List$map,
+				elm$core$Tuple$first,
+				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
+};
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var author$project$Main$optionButton = function (_n0) {
+	var clickMsg = _n0.clickMsg;
+	var name = _n0.name;
+	var selected = _n0.selected;
+	return A2(
+		elm$html$Html$label,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$button,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('p-4'),
+						elm$html$Html$Events$onClick(clickMsg),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('bg-teal-400 hover:bg-teal-500', selected),
+								_Utils_Tuple2('bg-gray-200 hover:bg-gray-300', !selected)
+							]))
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(name)
+					]))
+			]));
+};
+var elm$html$Html$div = _VirtualDom_node('div');
+var author$project$Main$optionGroup = function (children) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('flex justify-around py-4 border-2 border-teal-400')
+			]),
+		children);
+};
+var author$project$Main$searchText = 'You can\'t, if you can\'t feel it, if it never\nRises from the soul, and sways\nThe heart of every single hearer,\nWith deepest power, in simple ways.\nYou\'ll sit forever, gluing things together,\nCooking up a stew from other\'s scraps,\nBlowing on a miserable fire,\nMade from your heap of dying ash.\nLet apes and children praise your art,\nIf their admiration\'s to your taste,\nBut you\'ll never speak from heart to heart,\nUnless it rises up from your heart\'s space.';
+var author$project$Mark$ignoreCase = author$project$Mark$CaseIgnore;
 var author$project$Mark$wrapAndAddToMarkers = F3(
 	function (item, wrapper, markers) {
 		if (item === '') {
@@ -4951,62 +5172,6 @@ var author$project$Internal$removeOverlaps = author$project$Internal$filterLastT
 			var start = _n1.a;
 			return _Utils_cmp(end, start) < 0;
 		}));
-var elm$core$Basics$not = _Basics_not;
-var elm$core$List$foldrHelper = F4(
-	function (fn, acc, ctr, ls) {
-		if (!ls.b) {
-			return acc;
-		} else {
-			var a = ls.a;
-			var r1 = ls.b;
-			if (!r1.b) {
-				return A2(fn, a, acc);
-			} else {
-				var b = r1.a;
-				var r2 = r1.b;
-				if (!r2.b) {
-					return A2(
-						fn,
-						a,
-						A2(fn, b, acc));
-				} else {
-					var c = r2.a;
-					var r3 = r2.b;
-					if (!r3.b) {
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(fn, c, acc)));
-					} else {
-						var d = r3.a;
-						var r4 = r3.b;
-						var res = (ctr > 500) ? A3(
-							elm$core$List$foldl,
-							fn,
-							acc,
-							elm$core$List$reverse(r4)) : A4(elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(
-									fn,
-									c,
-									A2(fn, d, res))));
-					}
-				}
-			}
-		}
-	});
-var elm$core$List$foldr = F3(
-	function (fn, acc, ls) {
-		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
-	});
 var elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -5018,20 +5183,6 @@ var elm$core$List$append = F2(
 var elm$core$List$concat = function (lists) {
 	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
 };
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var elm$core$List$concatMap = F2(
 	function (f, list) {
 		return elm$core$List$concat(
@@ -5117,28 +5268,71 @@ var author$project$Mark$markWith = F3(
 			content,
 			_List_Nil);
 	});
-var elm$html$Html$div = _VirtualDom_node('div');
+var author$project$Mark$CaseSensitive = {$: 'CaseSensitive'};
+var author$project$Mark$matchCase = author$project$Mark$CaseSensitive;
+var author$project$Mark$MultiWord = {$: 'MultiWord'};
+var author$project$Mark$multiWord = author$project$Mark$MultiWord;
+var author$project$Mark$singleWord = author$project$Mark$SingleWord;
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm$core$String$toInt = _String_toInt;
+var elm$html$Html$blockquote = _VirtualDom_node('blockquote');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$main_ = _VirtualDom_node('main');
-var elm$html$Html$p = _VirtualDom_node('p');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
+var elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
+};
+var elm$html$Html$node = elm$virtual_dom$VirtualDom$node;
+var elm$html$Html$small = _VirtualDom_node('small');
+var elm$json$Json$Encode$bool = _Json_wrap;
+var elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
 		return A2(
 			_VirtualDom_property,
 			key,
-			elm$json$Json$Encode$string(string));
+			elm$json$Json$Encode$bool(bool));
 	});
+var elm$html$Html$Attributes$autofocus = elm$html$Html$Attributes$boolProperty('autofocus');
+var elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
+var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
@@ -5169,65 +5363,158 @@ var elm$html$Html$Events$onInput = function (tagger) {
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$main_,
-		_List_Nil,
 		_List_fromArray(
 			[
+				elm$html$Html$Attributes$class('flex flex-col items-center')
+			]),
+		_List_fromArray(
+			[
+				A3(
+				elm$html$Html$node,
+				'link',
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$rel('stylesheet'),
+						elm$html$Html$Attributes$href('https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css')
+					]),
+				_List_Nil),
+				A3(
+				elm$html$Html$node,
+				'style',
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('\n          blockquote { quotes: "“" "”" "‘" "’"; }\n          blockquote:before { content: open-quote; }\n          blockquote:after { content: close-quote; }\n          .v-gap > * + * { margin-top: 1rem; }\n        ')
+					])),
 				A2(
 				elm$html$Html$h1,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('text-6xl text-center')
+					]),
 				_List_fromArray(
 					[
 						elm$html$Html$text('Elm-Mark Demo')
 					])),
-				author$project$Main$viewOption(model),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('px-4')
+					]),
 				_List_fromArray(
 					[
 						A2(
 						elm$html$Html$input,
 						_List_fromArray(
 							[
+								elm$html$Html$Attributes$class('text-2xl border-2 border-gray-200 focus:border-gray-500 rounded-sm mb-4 w-full max-w-4xl p-2'),
 								elm$html$Html$Attributes$type_('text'),
 								elm$html$Html$Events$onInput(author$project$Main$SearchTermChange),
-								elm$html$Html$Attributes$placeholder('Search the text below')
+								elm$html$Html$Attributes$placeholder('Search the text below'),
+								elm$html$Html$Attributes$autofocus(true)
 							]),
 						_List_Nil)
 					])),
 				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				A3(author$project$Mark$markWith, model.options, model.searchTerm, author$project$Main$searchText)),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
+				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$text('Johann Wolfgang von Goethe, Faust, First Part')
+						elm$html$Html$Attributes$class('flex flex-col md:flex-row text-justify')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('w-full px-4 md:border-r-4 md:border-black')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$blockquote,
+								_List_Nil,
+								A3(
+									author$project$Mark$markWith,
+									author$project$Main$modelToOptions(model),
+									model.searchTerm,
+									author$project$Main$searchText)),
+								A2(
+								elm$html$Html$small,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('block mt-4 text-right italic')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Johann Wolfgang von Goethe, Faust, First Part')
+									]))
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('flex flex-col w-full px-4 v-gap')
+							]),
+						_List_fromArray(
+							[
+								author$project$Main$optionGroup(
+								_List_fromArray(
+									[
+										author$project$Main$optionButton(
+										{
+											clickMsg: author$project$Main$CaseChanged(author$project$Mark$ignoreCase),
+											name: 'ignore case',
+											selected: _Utils_eq(model.caseSensitivity, author$project$Mark$ignoreCase)
+										}),
+										author$project$Main$optionButton(
+										{
+											clickMsg: author$project$Main$CaseChanged(author$project$Mark$matchCase),
+											name: 'match case',
+											selected: _Utils_eq(model.caseSensitivity, author$project$Mark$matchCase)
+										})
+									])),
+								author$project$Main$optionGroup(
+								_List_fromArray(
+									[
+										author$project$Main$optionButton(
+										{
+											clickMsg: author$project$Main$WhitespaceChanged(author$project$Mark$singleWord),
+											name: 'single word',
+											selected: _Utils_eq(model.whitespace, author$project$Mark$singleWord)
+										}),
+										author$project$Main$optionButton(
+										{
+											clickMsg: author$project$Main$WhitespaceChanged(author$project$Mark$multiWord),
+											name: 'multi word',
+											selected: _Utils_eq(model.whitespace, author$project$Mark$multiWord)
+										})
+									])),
+								author$project$Main$optionGroup(
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$input,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('number'),
+												elm$html$Html$Attributes$value(
+												elm$core$String$fromInt(model.minTermLength)),
+												elm$html$Html$Events$onInput(
+												A2(
+													elm$core$Basics$composeR,
+													elm$core$String$toInt,
+													A2(
+														elm$core$Basics$composeR,
+														elm$core$Maybe$map(author$project$Main$MinTermLengthChanged),
+														elm$core$Maybe$withDefault(author$project$Main$NoOp))))
+											]),
+										_List_Nil)
+									]))
+							]))
 					]))
 			]));
-};
-var author$project$Mark$CaseIgnore = {$: 'CaseIgnore'};
-var author$project$Mark$SearchNormal = function (a) {
-	return {$: 'SearchNormal', a: a};
-};
-var author$project$Mark$SingleWord = {$: 'SingleWord'};
-var elm$html$Html$mark = _VirtualDom_node('mark');
-var author$project$Mark$defaultOptions = {
-	mapHit: function (miss) {
-		return A2(
-			elm$html$Html$mark,
-			_List_Nil,
-			_List_fromArray(
-				[
-					elm$html$Html$text(miss)
-				]));
-	},
-	mapMiss: elm$html$Html$text,
-	minTermLength: 3,
-	searchType: author$project$Mark$SearchNormal(author$project$Mark$CaseIgnore),
-	whitespace: author$project$Mark$SingleWord
 };
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5340,7 +5627,6 @@ var elm$core$String$left = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
-var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
@@ -5467,7 +5753,7 @@ var elm$browser$Browser$sandbox = function (impl) {
 };
 var author$project$Main$main = elm$browser$Browser$sandbox(
 	{
-		init: {options: author$project$Mark$defaultOptions, searchTerm: 'Assi'},
+		init: {caseSensitivity: author$project$Mark$ignoreCase, minTermLength: 3, searchTerm: '', whitespace: author$project$Mark$singleWord},
 		update: author$project$Main$update,
 		view: author$project$Main$view
 	});
