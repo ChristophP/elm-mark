@@ -7,6 +7,7 @@ import Html
         , button
         , div
         , h1
+        , h2
         , input
         , label
         , main_
@@ -102,9 +103,11 @@ optionButton { clickMsg, name, selected } =
         ]
 
 
-optionGroup children =
-    div [ class "flex justify-around py-4 border-2 border-teal-400" ]
-        children
+optionGroup title children =
+    div [ class "flex flex-col border-2 border-teal-400" ]
+        [ h2 [ class "text-center text-2xl text-teal-400 border-b border-teal-400" ] [ text title ]
+        , div [ class "flex justify-around py-4" ] children
+        ]
 
 
 modelToOptions model =
@@ -145,7 +148,7 @@ view model =
                 , small [ class "block mt-4 text-right italic" ] [ text "Johann Wolfgang von Goethe, Faust, First Part" ]
                 ]
             , div [ class "flex flex-col w-full px-4 v-gap" ]
-                [ optionGroup
+                [ optionGroup "Case sensitivity"
                     [ optionButton
                         { name = "ignore case"
                         , clickMsg = CaseChanged Mark.ignoreCase
@@ -157,7 +160,7 @@ view model =
                         , selected = model.caseSensitivity == Mark.matchCase
                         }
                     ]
-                , optionGroup
+                , optionGroup "Whitespace"
                     [ optionButton
                         { name = "single word"
                         , clickMsg = WhitespaceChanged Mark.singleWord
@@ -169,7 +172,7 @@ view model =
                         , selected = model.whitespace == Mark.multiWord
                         }
                     ]
-                , optionGroup
+                , optionGroup "Minumum search term length"
                     [ input [ type_ "number", value (String.fromInt model.minTermLength), onInput (String.toInt >> Maybe.map MinTermLengthChanged >> Maybe.withDefault NoOp) ] []
                     ]
                 ]
