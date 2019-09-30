@@ -166,7 +166,7 @@ are the following:
 
     defaultOptions : Options (Html msg)
     defaultOptions =
-        { searchType = searchNormal ignoreCase
+        { searchType = normalSearch ignoreCase
         , whitespace = singleWord
         , minTermLength = 3
         , mapHit = \hit -> Html.mark [] [ Html.text hit ]
