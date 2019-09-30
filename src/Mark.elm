@@ -73,8 +73,8 @@ ignoreCase =
 
 
 {-| This option lets you configure how whitespace in search terms is treated.
-In some case you may want to for the string "functional programming" and want
-results to have both of those words in them, in that order.
+In some cases you may want to search for the string "functional programming" and
+want results to have both of those words in them, in that order.
 Other times you may wanna search for "Leonardo Raphael Donatello" and search for
 occurances of either one of those.
 -}
@@ -141,9 +141,13 @@ You need to make sure the returned indexes are sane. Sane in this case means the
 You can use funtions like `String.indexes`, `Regex.find` or all the good stuff
 in `elm/parser` for your implementation.
 
-When using [`singleWord`](#singleWord)
-your function is called only once, but it will be called once for every word when using
-[`multiWord`](#multiWord).
+**Hints for usage with [`Whitespace`](#Whitespace)**
+
+Say your search term is `"typed functional programming"`. When using
+[`singleWord`](#multiWird) your custom function is called once and passed the
+entire search term `"typed functional programming"`. However, when using
+[`multiWord`](#multiWord) your custom search function is called 3 times:
+With `"typed"`, `"functional"` and "`programming`" as search terms respectively.
 
 -}
 customSearch : (String -> String -> List ( Int, Int )) -> SearchType
