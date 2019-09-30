@@ -129,25 +129,29 @@ needs to return a list of index pairs where each marks the start and end index o
 match.
 You need to make sure the returned indexes are sane. Sane in this case means the index pairs are ...
 
-1.  **sorted ascendingly**: Meaning for every index pair, the end index is always smaller than the start of the next pair.
+1.  **sorted ascendingly**: Meaning for every index pair, the end index is
+    always smaller than the start index of the next pair.
 
     For example: `[(3, 4), (0, 2)]` is not sorted, `[(0, 2), (3, 4)]` is sorted.
     You can verify
 
 2.  **non-overlapping**: The ranges expressed by the pairs don't overlap.
 
-    For example: `[(1, 3), (2, 4)]` overlap, `[(1, 3), (5, 6)]` don't.
+    For example: `[(1, 3), (2, 4)]` overlap at 2-3, `[(1, 3), (5, 6)]` don't.
 
 You can use funtions like `String.indexes`, `Regex.find` or all the good stuff
-in `elm/parser` for your implementation.
+in `elm/parser` for your implementation. You can find an example for a basic
+glob search in the tests for this package.
 
 **Hints for usage with [`Whitespace`](#Whitespace)**
 
 Say your search term is `"typed functional programming"`. When using
-[`singleWord`](#multiWird) your custom function is called once and passed the
+[`singleWord`](#singleWord) your custom function is called once and passed the
 entire search term `"typed functional programming"`. However, when using
 [`multiWord`](#multiWord) your custom search function is called 3 times:
 With `"typed"`, `"functional"` and "`programming`" as search terms respectively.
+The results will be combined. When using [`multiWord`](#multiWord) the result
+will be sorted and filtered for overlaps automatically.
 
 -}
 customSearch : (String -> String -> List ( Int, Int )) -> SearchType
@@ -165,14 +169,14 @@ are the following:
         { searchType = searchNormal ignoreCase
         , whitespace = singleWord
         , minTermLength = 3
-        , mapHit = \miss -> Html.mark [] [ Html.text miss ]
+        , mapHit = \hit -> Html.mark [] [ Html.text hit ]
         , mapMiss = Html.text
         }
 
 This means that search will ignore case, the search term will be treated as
 a single word (including whitespace) and no matches will be generated if the
 search term is under three characters. Also, hits will be transformed into
-plain HTML text and misses into `<mark>` tags.
+into `<mark>` tags misses into plain HTML text.
 
 -}
 defaultOptions : Options (Html msg)
@@ -180,7 +184,7 @@ defaultOptions =
     { searchType = SearchNormal CaseIgnore
     , whitespace = SingleWord
     , minTermLength = 3
-    , mapHit = \miss -> Html.mark [] [ Html.text miss ]
+    , mapHit = \hit -> Html.mark [] [ Html.text hit ]
     , mapMiss = Html.text
     }
 
