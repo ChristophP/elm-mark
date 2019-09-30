@@ -54,4 +54,7 @@ Developing and running the tests.
 npm ci
 npm run dev
 ```
+## Credits
 
+Thanks to @layflags and @pehota for inspirational thoughts 🤔, code reviews 👓 and
+lots of fun working on projects together. ❤
