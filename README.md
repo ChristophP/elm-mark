@@ -2,6 +2,8 @@
 
 Search Term Highlighting for Elm Apps
 
+![elm-mark-demo](https://raw.githubusercontent.com/ChristophP/elm-mark/master/elm-mark-demo.gif)
+
 Check out the [demo](https://elm-mark-demo.deedop.de/).
 
 ## Why do you need it?
