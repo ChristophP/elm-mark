@@ -1,4 +1,4 @@
-module Mark exposing
+module String.Mark exposing
     ( mark, markWith
     , Options, defaultOptions, SearchType, normalSearch, customSearch, Case, ignoreCase, matchCase, Whitespace, singleWord, multiWord
     )

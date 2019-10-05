@@ -6,6 +6,13 @@ Search Term Highlighting for Elm Apps
 
 Check out the [demo](https://elm-mark-demo.deedop.de/).
 
+**Upgrade hint from version 1.x.x:**
+There is only one easy-to-fix breaking change in version 2.
+The exposed module name for `elm-mark` is changed from `Mark` to `String.Mark`.
+This avoids module naming collisions with other popular packages. Now feel free
+to use both `elm-mark` with for example the great
+[`mdgriffith/elm-markup`](https://package.elm-lang.org/packages/mdgriffith/elm-markup/latest/). 🎉
+
 ## Why do you need it?
 
 Marking keywords in text is harder than it sounds. I had to do it a couple of
