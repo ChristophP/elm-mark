@@ -2,7 +2,8 @@ module MarkTest exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
-import Mark
+import Regex
+import String.Mark
     exposing
         ( customSearch
         , ignoreCase
@@ -13,7 +14,6 @@ import Mark
         , normalSearch
         , singleWord
         )
-import Regex
 import Test exposing (..)
 
 
