@@ -27,7 +27,7 @@ import Html.Attributes
         , value
         )
 import Html.Events exposing (onClick, onInput)
-import Mark
+import String.Mark
 
 
 main =

@@ -25,7 +25,7 @@ you'll find it pleasant to use and highlight away. :-)
 
 ```elm
 import Html
-import Mark
+import String.Mark as Mark
 
 main = Html.p [] <| Mark.mark "ness" "Tennessee"
 -- will render <p>Ten<mark>ness</mark>ee</p>
