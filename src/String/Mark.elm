@@ -250,6 +250,16 @@ wrapAndAddToMarkers item wrapper markers =
 
 {-| Customize how marking works. Check out the [`options`](#Options)
 for what can be configured.
+
+    import String.Mark as Mark exposing (defaultOptions, normalSearch, matchCase)
+
+    -- for example make searching case sensitive
+    let
+      options = { defaultOptions | searchType = normalSearch matchCase }
+    in p [] <| Mark.markWith options "iss" "MissISSippi"
+
+    -- will render <p>M<mark>iss</mark>ISSippi</p>
+
 -}
 markWith : Options a -> String -> String -> List a
 markWith options term content =
@@ -262,6 +272,7 @@ markWith options term content =
 
 {-| Highlight search terms within text.
 
+    import String.Mark as Mark
 
     main =
         Html.p [] <| Mark.mark "ness" "Tennessee"
