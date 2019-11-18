@@ -1,0 +1,13 @@
+name: Other
+
+on: [push]
+
+jobs:
+  check:
+
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: Log Stuff
+      run: echo "Hello Github!"
+
