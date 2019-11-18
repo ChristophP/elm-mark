@@ -12,9 +12,10 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - name: Run a one-line script
-      run: echo $(node -p '3 + 4')
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - name: Install
+      run: npm ci
+    - name: Test
+      run: npm test
+    - name: Compile
+      run: npx elm make src/String/Mark.elm
+
