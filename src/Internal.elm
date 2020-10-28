@@ -75,7 +75,7 @@ stringIndexesIgnoreCase term content =
 -}
 removeOverlaps : List ( Int, Int ) -> List ( Int, Int )
 removeOverlaps =
-    filterLastTwo (\( _, end ) ( start, _ ) -> end < start)
+    filterLastTwo (\( _, end ) ( start, _ ) -> end <= start)
 
 
 multiWordGetIndexes : GetIndexesFn -> GetIndexesFn

@@ -6,6 +6,7 @@ import Regex
 import String.Mark
     exposing
         ( customSearch
+        , defaultOptions
         , ignoreCase
         , mark
         , markWith
@@ -29,6 +30,15 @@ testOptions =
     , mapHit = Hit
     , mapMiss = Miss
     }
+
+
+defaultOptionsTest : Test
+defaultOptionsTest =
+    describe "mark"
+        [ fuzz2 Fuzz.string Fuzz.string "mark behaves like markWith with defaultOptions" <|
+            \str1 str2 ->
+                mark str1 str2 |> Expect.equal (markWith defaultOptions str1 str2)
+        ]
 
 
 basic : Test
@@ -169,6 +179,10 @@ multiWords =
             \() ->
                 markWith options "enn Tenness" "Tennessee"
                     |> Expect.equal [ Hit "Tenness", Miss "ee" ]
+        , test "works with adjacent hits as well" <|
+            \() ->
+                markWith options "Dim ita" "Dimitar"
+                    |> Expect.equal [ Hit "Dim", Hit "ita", Miss "r" ]
         ]
 
 
