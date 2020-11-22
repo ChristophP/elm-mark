@@ -13,6 +13,11 @@ This avoids module naming collisions with other popular packages. Now feel free
 to use both `elm-mark` with for example the great
 [`mdgriffith/elm-markup`](https://package.elm-lang.org/packages/mdgriffith/elm-markup/latest/). 🎉
 
+## Who's using it?
+
+- The amazing [`ThankU`](https://www.thanku.social) [(www.thanku.social)](https://www.thanku.social): the platform to say thank you and do good.
+- others: please open a PR to have your name or company added
+
 ## Why do you need it?
 
 Marking keywords in text is harder than it sounds. I had to do it a couple of
