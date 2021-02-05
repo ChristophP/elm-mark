@@ -141,6 +141,7 @@ view model =
                 , onInput SearchTermChange
                 , placeholder "Search the text below"
                 , autofocus True
+                , value model.searchTerm
                 ]
                 []
             ]
