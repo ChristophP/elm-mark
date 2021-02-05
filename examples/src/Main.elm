@@ -33,7 +33,7 @@ import String.Mark as Mark
 main =
     Browser.sandbox
         { init =
-            { searchTerm = ""
+            { searchTerm = "heart"
             , caseSensitivity = Mark.ignoreCase
             , whitespace = Mark.singleWord
             , minTermLength = 3
